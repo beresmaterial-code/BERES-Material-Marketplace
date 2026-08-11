@@ -52,9 +52,10 @@
             scrollbar-width: none;
         }
         
-        /* Smooth scrolling */
+        /* Smooth scrolling and offset for fixed headers */
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 140px; 
         }
 
         /* Carousel Snap */
@@ -75,8 +76,8 @@
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        /* Mobile Footer Accordion Animation */
-        .footer-acc-content {
+        /* Animations */
+        .footer-acc-content, .nav-acc-content {
             max-height: 0px;
             overflow: hidden;
             transition: max-height 600ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -87,12 +88,12 @@
                 overflow: visible !important;
             }
         }
-        .footer-acc-inner {
+        .footer-acc-inner, .nav-acc-inner {
             opacity: 0;
             transform: translateY(-8px);
             transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1), transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .footer-acc-inner.is-open {
+        .footer-acc-inner.is-open, .nav-acc-inner.is-open {
             opacity: 1;
             transform: translateY(0);
         }
@@ -108,333 +109,280 @@
 
     <!-- HEADER -->
     <header class="sticky top-0 z-40 bg-white w-full">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-20 flex items-center justify-between">
             
             <!-- Logo -->
-            <div class="flex items-center cursor-pointer flex-shrink-0">
+            <a href="#home" class="flex items-center cursor-pointer flex-shrink-0 home-link">
                 <img src="https://i.imgur.com/kwr4b5C.png" alt="BERES Material" class="w-[100px] md:w-[130px] h-auto object-contain">
+            </a>
+
+            <!-- Center Search Bar (Desktop Only) -->
+            <div class="hidden lg:flex flex-1 max-w-[800px] mx-8 xl:mx-12 relative search-container">
+                <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-beres-gray text-xl pointer-events-none"></i>
+                <input type="text" placeholder="Cari material, produk, atau merek" 
+                    class="search-input w-full bg-gray-100 border border-transparent rounded-xl py-3 pl-12 pr-10 focus:bg-white focus:border-beres-green focus:ring-1 focus:ring-beres-green outline-none text-base transition-colors">
+                <button class="search-clear hidden absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-beres-charcoal transition-colors p-1">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+                <!-- Search Suggestions Dropdown -->
+                <div class="search-dropdown absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 hidden flex-col overflow-hidden z-50"></div>
             </div>
 
             <!-- Right Actions -->
-            <div class="flex items-center gap-4 md:gap-6">
+            <div class="flex items-center gap-4 md:gap-6 flex-shrink-0">
                 <!-- Cart -->
                 <button id="cartBtn" class="relative p-2 text-beres-charcoal hover:text-beres-green transition-colors">
                     <i class="ph ph-shopping-cart text-2xl"></i>
-                    <span class="absolute top-1 right-1 w-4 h-4 bg-beres-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white box-content">2</span>
+                    <!-- Dynamic Cart Badge -->
+                    <span id="cartBadge" class="absolute top-1 right-1 w-4 h-4 bg-beres-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white box-content hidden transition-transform transform">0</span>
                 </button>
                 
-                <!-- Desktop User Menu -->
-                <button class="hidden md:flex items-center gap-2 text-sm font-medium hover:text-beres-green transition-colors">
-                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                        <i class="ph ph-user text-gray-500 text-lg"></i>
+                <!-- Desktop Auth Actions (Hidden on Mobile/Tablet) -->
+                <div class="hidden lg:flex items-center gap-3 border-l border-gray-200 pl-6 ml-2" id="desktopAuthContainer">
+                    <div id="desktopLoggedOut" class="flex items-center gap-2">
+                        <button class="text-sm font-semibold text-beres-charcoal hover:text-beres-green px-3 py-2 transition-colors">Masuk</button>
+                        <button class="text-sm font-bold bg-beres-green text-white hover:bg-green-700 px-4 py-2 rounded-lg transition-colors shadow-sm">Daftar</button>
                     </div>
-                    <span>Profil</span>
-                </button>
+                    <div id="desktopLoggedIn" class="hidden flex items-center gap-2">
+                        <button class="flex items-center gap-2 text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors px-2 py-2">
+                            <div class="w-8 h-8 rounded-full bg-beres-greenLight flex items-center justify-center text-beres-green">
+                                <i class="ph-fill ph-user text-lg"></i>
+                            </div>
+                            <span>Profil</span>
+                        </button>
+                    </div>
+                </div>
 
-                <!-- Mobile Hamburger -->
-                <button class="md:hidden p-2 text-beres-charcoal">
+                <!-- Mobile & Tablet Hamburger (Hidden on Desktop) -->
+                <button id="hamburgerBtn" class="block lg:hidden p-2 text-beres-charcoal hover:text-beres-green transition-colors">
                     <i class="ph ph-list text-2xl"></i>
                 </button>
             </div>
         </div>
+
+        <!-- DESKTOP NAVIGATION ROW (Hidden on Mobile/Tablet) -->
+        <div class="hidden lg:block w-full border-t border-gray-100 bg-white">
+            <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-8">
+                <a href="#home" class="text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors nav-item">Home</a>
+                
+                <!-- Category Dropdown -->
+                <div class="relative group h-full flex items-center">
+                    <a href="#kategori" class="text-sm font-semibold text-beres-charcoal group-hover:text-beres-green transition-colors flex items-center gap-1 h-full nav-item">
+                        Kategori <i class="ph ph-caret-down text-xs transition-transform group-hover:rotate-180"></i>
+                    </a>
+                    <div class="absolute top-full left-0 w-[240px] bg-white border border-gray-100 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2 flex flex-col">
+                        <a href="#" data-category="Semen" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Semen</a>
+                        <a href="#" data-category="Pipa" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Pipa</a>
+                        <a href="#" data-category="Besi & Baja" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Besi & Baja</a>
+                        <a href="#" data-category="Kayu" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Kayu</a>
+                        <a href="#" data-category="Keramik" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Keramik</a>
+                        <a href="#" data-category="Cat" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Cat</a>
+                        <a href="#" data-category="Atap" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Atap</a>
+                        <a href="#" data-category="Perkakas" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Perkakas</a>
+                        <a href="#" data-category="Listrik" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Listrik</a>
+                        <a href="#" data-category="Sanitasi" class="category-shortcut px-4 py-2.5 text-sm text-beres-gray hover:text-beres-green hover:bg-beres-greenLight transition-colors">Sanitasi</a>
+                    </div>
+                </div>
+
+                <a href="#toko-terdekat" class="text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors nav-item">Toko Terdekat</a>
+                <a href="#pilihan-untuk-lo" class="text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors nav-item">Produk</a>
+                <a href="#promo" class="text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors nav-item">Promo</a>
+                <a href="#pilihan-untuk-lo" class="text-sm font-semibold text-beres-charcoal hover:text-beres-green transition-colors nav-item">Pilihan Untuk Lo</a>
+            </div>
+        </div>
     </header>
 
-    <!-- MOBILE SEARCH (Visible below header on mobile) -->
-    <div class="md:hidden bg-white px-4 py-3 sticky top-16 z-30">
-        <div class="relative">
-            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-beres-gray text-lg"></i>
+    <!-- SEARCH BAR (Mobile & Tablet Only) -->
+    <div class="bg-white px-4 py-3 md:py-4 sticky top-16 z-30 flex justify-center lg:hidden">
+        <div class="relative w-full max-w-[800px] search-container">
+            <i class="ph ph-magnifying-glass absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-beres-gray text-lg md:text-xl pointer-events-none"></i>
             <input type="text" placeholder="Cari material, produk, atau merek" 
-                class="w-full bg-gray-100 border border-transparent rounded-lg py-2.5 pl-10 pr-4 focus:bg-white focus:border-beres-green focus:ring-1 focus:ring-beres-green outline-none text-sm">
+                class="search-input w-full bg-gray-100 border border-transparent rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-10 md:pl-12 pr-10 focus:bg-white focus:border-beres-green focus:ring-1 focus:ring-beres-green outline-none text-sm md:text-base transition-colors">
+            <button class="search-clear hidden absolute right-3 md:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-beres-charcoal transition-colors p-1">
+                <i class="ph-bold ph-x text-sm md:text-base"></i>
+            </button>
+            <!-- Search Suggestions Dropdown Mobile -->
+            <div class="search-dropdown absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 hidden flex-col overflow-hidden z-50"></div>
         </div>
     </div>
 
     <!-- MAIN CONTENT WRAPPER -->
     <main class="max-w-[1400px] mx-auto w-full">
 
-        <!-- HERO BANNER -->
-        <section class="mt-4 md:mt-8 px-4 sm:px-6 lg:px-8 relative group">
-            <div id="heroCarousel" class="flex overflow-x-auto snap-x-mandatory hide-scrollbar rounded-2xl md:rounded-3xl relative">
-                
-                <!-- Slide 1 -->
-                <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-beres-green overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
-                    <!-- Abstract Background Pattern -->
-                    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-                    
-                    <div class="relative z-10 px-6 md:px-16 w-full md:w-2/3">
-                        <span class="inline-block px-3 py-1 bg-white/20 text-white text-xs md:text-sm font-semibold rounded-full mb-3 md:mb-4 backdrop-blur-sm">#CariMudahJadiBeres</span>
-                        <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 md:mb-4">
-                            Cari Material Tanpa Keliling Toko.
-                        </h1>
-                        <p class="text-white/90 text-sm md:text-lg mb-4 md:mb-8 font-medium">
-                            Temukan toko terpercaya di sekitar lo. Tinggal klik, langsung diantar.
-                        </p>
-                        <button class="bg-beres-orange hover:bg-orange-500 text-white font-bold py-2.5 md:py-3.5 px-6 md:px-8 rounded-full text-sm md:text-base transition-colors shadow-lg transform active:scale-95 inline-flex items-center gap-2">
-                            Cari Material <i class="ph ph-arrow-right font-bold"></i>
-                        </button>
-                    </div>
-                    <!-- Placeholder for visual/image on the right -->
-                    <div class="hidden md:block absolute right-0 bottom-0 h-[110%] w-1/3 bg-gradient-to-l from-black/20 to-transparent"></div>
-                </div>
-
-                <!-- Slide 2 -->
-                <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-gray-900 overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
-                    <img src="https://placehold.co/1200x400/1C1C1E/FFFFFF?text=Material+Pilihan,+Langsung+Diantar" alt="Banner 2" class="absolute inset-0 w-full h-full object-cover opacity-60">
-                    <div class="relative z-10 px-6 md:px-16 w-full text-center">
-                        <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-4">
-                            Material Pilihan,<br>Langsung Diantar.
-                        </h2>
-                        <button class="bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors shadow-lg">
-                            Belanja Sekarang
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Carousel Indicators -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                <div class="w-6 h-1.5 rounded-full bg-white transition-all carousel-dot active"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-white/50 transition-all carousel-dot"></div>
+        <!-- DYNAMIC SEARCH RESULTS SECTION (Hidden initially) -->
+        <section id="search-results-section" class="hidden mt-6 md:mt-10 px-4 sm:px-6 lg:px-8 min-h-[50vh]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+                <h2 class="text-xl md:text-2xl font-bold text-beres-charcoal">Hasil Pencarian untuk "<span id="search-query-display" class="text-beres-green"></span>"</h2>
+                <span id="search-count-display" class="text-sm font-semibold text-beres-gray bg-gray-100 px-3 py-1 rounded-full w-fit"></span>
             </div>
             
-            <!-- Desktop Carousel Arrows -->
-            <button id="prevSlide" class="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100">
-                <i class="ph ph-caret-left text-xl font-bold"></i>
-            </button>
-            <button id="nextSlide" class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100">
-                <i class="ph ph-caret-right text-xl font-bold"></i>
-            </button>
+            <div id="search-results-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
+                <!-- Search results injected here -->
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="search-empty-state" class="hidden flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-gray-100">
+                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="ph ph-magnifying-glass text-4xl text-gray-300"></i>
+                </div>
+                <h3 class="text-xl font-bold text-beres-charcoal mb-2" id="empty-state-title">Produk belum ditemukan</h3>
+                <p class="text-beres-gray text-sm md:text-base max-w-md mx-auto" id="empty-state-desc">Kami tidak menemukan produk yang cocok dengan pencarian lo. Coba gunakan kata kunci lain atau periksa ejaan.</p>
+                <button class="home-link mt-6 bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors">
+                    Kembali ke Homepage
+                </button>
+            </div>
         </section>
 
-        <!-- TRUST FEATURES -->
-        <section class="mt-8 md:mt-12 px-2 sm:px-6 lg:px-8 max-w-[1200px] mx-auto">
-            <div class="grid grid-cols-4 gap-1 sm:gap-4 md:gap-8">
+        <!-- NORMAL HOMEPAGE SECTIONS (Hidden when searching) -->
+        <div id="homepage-sections">
+            <!-- HERO BANNER -->
+            <section id="home" class="mt-4 md:mt-8 px-4 sm:px-6 lg:px-8 relative group">
+                <div id="heroCarousel" class="flex overflow-x-auto snap-x-mandatory hide-scrollbar rounded-2xl md:rounded-3xl relative">
+                    <!-- Slide 1 -->
+                    <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-beres-green overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
+                        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+                        <div class="relative z-10 px-6 md:px-16 w-full md:w-2/3">
+                            <span class="inline-block px-3 py-1 bg-white/20 text-white text-xs md:text-sm font-semibold rounded-full mb-3 md:mb-4 backdrop-blur-sm">#CariMudahJadiBeres</span>
+                            <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 md:mb-4">
+                                Cari Material Tanpa Keliling Toko.
+                            </h1>
+                            <p class="text-white/90 text-sm md:text-lg mb-4 md:mb-8 font-medium">
+                                Temukan toko terpercaya di sekitar lo. Tinggal klik, langsung diantar.
+                            </p>
+                            <button class="bg-beres-orange hover:bg-orange-500 text-white font-bold py-2.5 md:py-3.5 px-6 md:px-8 rounded-full text-sm md:text-base transition-colors shadow-lg transform active:scale-95 inline-flex items-center gap-2">
+                                Cari Material <i class="ph ph-arrow-right font-bold"></i>
+                            </button>
+                        </div>
+                        <div class="hidden md:block absolute right-0 bottom-0 h-[110%] w-1/3 bg-gradient-to-l from-black/20 to-transparent"></div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-gray-900 overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
+                        <img src="https://placehold.co/1200x400/1C1C1E/FFFFFF?text=Material+Pilihan,+Langsung+Diantar" alt="Banner 2" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                        <div class="relative z-10 px-6 md:px-16 w-full text-center">
+                            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-4">
+                                Material Pilihan,<br>Langsung Diantar.
+                            </h2>
+                            <button class="bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors shadow-lg">
+                                Belanja Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carousel Indicators -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                    <div class="w-6 h-1.5 rounded-full bg-white transition-all carousel-dot active"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 transition-all carousel-dot"></div>
+                </div>
                 
-                <div class="flex flex-col items-center justify-start text-center h-full">
-                    <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0">
-                        <i class="ph ph-shield-check text-2xl sm:text-3xl md:text-5xl text-beres-green"></i>
+                <button id="prevSlide" class="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph ph-caret-left text-xl font-bold"></i></button>
+                <button id="nextSlide" class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph ph-caret-right text-xl font-bold"></i></button>
+            </section>
+
+            <!-- TRUST FEATURES -->
+            <section class="mt-8 md:mt-12 px-2 sm:px-6 lg:px-8 max-w-[1200px] mx-auto">
+                <div class="grid grid-cols-4 gap-1 sm:gap-4 md:gap-8">
+                    <div class="flex flex-col items-center justify-start text-center h-full">
+                        <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0"><i class="ph ph-shield-check text-2xl sm:text-3xl md:text-5xl text-beres-green"></i></div>
+                        <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">TERPERCAYA</h3>
+                        <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Toko & produk terverifikasi.</p>
                     </div>
-                    <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">TERPERCAYA</h3>
-                    <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Toko & produk terverifikasi.</p>
-                </div>
-
-                <div class="flex flex-col items-center justify-start text-center h-full">
-                    <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0">
-                        <i class="ph ph-truck text-2xl sm:text-3xl md:text-5xl text-beres-green"></i>
+                    <div class="flex flex-col items-center justify-start text-center h-full">
+                        <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0"><i class="ph ph-truck text-2xl sm:text-3xl md:text-5xl text-beres-green"></i></div>
+                        <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">PENGIRIMAN CEPAT</h3>
+                        <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Sampai ke lokasi tujuan.</p>
                     </div>
-                    <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">PENGIRIMAN CEPAT</h3>
-                    <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Sampai ke lokasi tujuan.</p>
-                </div>
-
-                <div class="flex flex-col items-center justify-start text-center h-full">
-                    <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0">
-                        <i class="ph ph-medal text-2xl sm:text-3xl md:text-5xl text-beres-green"></i>
+                    <div class="flex flex-col items-center justify-start text-center h-full">
+                        <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0"><i class="ph ph-medal text-2xl sm:text-3xl md:text-5xl text-beres-green"></i></div>
+                        <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">KUALITAS TERJAMIN</h3>
+                        <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Produk pilihan terbaik.</p>
                     </div>
-                    <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">KUALITAS TERJAMIN</h3>
-                    <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Produk pilihan terbaik.</p>
-                </div>
-
-                <div class="flex flex-col items-center justify-start text-center h-full">
-                    <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0">
-                        <i class="ph ph-headset text-2xl sm:text-3xl md:text-5xl text-beres-green"></i>
+                    <div class="flex flex-col items-center justify-start text-center h-full">
+                        <div class="flex items-center justify-center mb-2 md:mb-4 flex-shrink-0"><i class="ph ph-headset text-2xl sm:text-3xl md:text-5xl text-beres-green"></i></div>
+                        <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">BANTUAN 24/7</h3>
+                        <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Siap membantu kapan saja.</p>
                     </div>
-                    <h3 class="font-bold text-[8px] sm:text-[10px] md:text-base text-beres-charcoal mb-1 md:mb-2 leading-tight uppercase">BANTUAN 24/7</h3>
-                    <p class="text-[7px] sm:text-[9px] md:text-sm text-beres-gray leading-tight">Siap membantu kapan saja.</p>
                 </div>
+            </section>
 
-            </div>
-        </section>
-
-        <!-- POPULAR CATEGORIES -->
-        <section class="mt-10 md:mt-16 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-4 md:mb-6">
-                <h2 class="text-lg md:text-2xl font-bold text-beres-charcoal">Kategori Populer</h2>
-                <a href="#" class="text-sm font-semibold text-beres-green hover:text-beres-green/80 flex items-center gap-1">
-                    Lihat Semua <i class="ph ph-caret-right"></i>
-                </a>
-            </div>
-
-            <div class="flex overflow-x-auto hide-scrollbar gap-3 md:gap-6 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-                <!-- Category Template -->
-                <script>
-                    const categories = [
-                        { name: "Semen", icon: "ph-wall" },
-                        { name: "Besi & Baja", icon: "ph-grid-nine" },
-                        { name: "Keramik", icon: "ph-squares-four" },
-                        { name: "Cat & Alat", icon: "ph-paint-bucket" },
-                        { name: "Kayu", icon: "ph-tree" },
-                        { name: "Pipa", icon: "ph-drop" },
-                        { name: "Listrik", icon: "ph-lightning" },
-                        { name: "Perkakas", icon: "ph-wrench" },
-                        { name: "Atap", icon: "ph-house-line" },
-                        { name: "Sanitary", icon: "ph-bathtub" }
-                    ];
-
-                    categories.forEach(cat => {
-                        document.write(`
-                            <a href="#" class="flex-none group">
-                                <div class="w-20 md:w-28 flex flex-col items-center gap-2 md:gap-3">
-                                    <div class="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                                        <i class="ph ${cat.icon} text-3xl md:text-4xl text-beres-charcoal group-hover:text-beres-green transition-colors"></i>
-                                    </div>
-                                    <span class="text-[11px] md:text-sm font-medium text-center text-beres-charcoal line-clamp-1">${cat.name}</span>
-                                </div>
-                            </a>
-                        `);
-                    });
-                </script>
-            </div>
-        </section>
-
-        <!-- FOR YOU / PRODUCT DISCOVERY -->
-        <section class="mt-10 md:mt-16 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-4 md:mb-6">
-                <h2 class="text-lg md:text-2xl font-bold text-beres-charcoal">Pilihan Untuk Lo</h2>
-                <a href="#" class="text-sm font-semibold text-beres-green hover:text-beres-green/80 flex items-center gap-1">
-                    Lihat Semua <i class="ph ph-caret-right"></i>
-                </a>
-            </div>
-
-            <!-- Responsive Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
-                
-                <!-- Product Data Array to populate via JS for cleaner code -->
-                <script>
-                    const products = [
-                        { name: "Semen Tiga Roda 40 Kg", price: "Rp 68.000", store: "Toko Bangunan Berkah", dist: "1.3 km", trusted: true, rating: "4.9", sold: "1rb+" },
-                        { name: "Pipa PVC 3/4 inch Wavin", price: "Rp 24.500", store: "Jaya Material", dist: "2.1 km", trusted: true, rating: "4.8", sold: "500+" },
-                        { name: "Cat Tembok Dulux Catylac 5 Kg", price: "Rp 145.000", store: "Sumber Rejeki", dist: "0.8 km", trusted: true, rating: "5.0", sold: "200+" },
-                        { name: "Besi Beton Polos 8mm (12m)", price: "Rp 45.000", store: "Baja Makmur", dist: "3.5 km", trusted: true, rating: "4.7", sold: "3rb+" },
-                        { name: "Keramik Lantai 40x40 Putih Polos", price: "Rp 48.000", store: "Mitra Keramik", dist: "1.5 km", trusted: false, rating: "4.6", sold: "800+" },
-                        { name: "Kabel Listrik Eterna NYM 2x1.5", price: "Rp 320.000", store: "Toko Bangunan Berkah", dist: "1.3 km", trusted: true, rating: "4.9", sold: "150+" },
-                        { name: "Paku Kayu 5cm (1 Kg)", price: "Rp 18.000", store: "Jaya Material", dist: "2.1 km", trusted: true, rating: "4.8", sold: "1rb+" },
-                        { name: "Gipsum Jayaboard 9mm", price: "Rp 65.000", store: "Sumber Rejeki", dist: "0.8 km", trusted: true, rating: "5.0", sold: "400+" },
-                    ];
-
-                    products.forEach(p => {
-                        const trustedBadge = p.trusted ? `
-                            <div class="flex items-center gap-1 bg-beres-greenLight text-beres-green px-1.5 py-0.5 rounded text-[10px] font-bold">
-                                <i class="ph-fill ph-check-circle"></i> Terpercaya
-                            </div>
-                        ` : '';
-
-                        document.write(`
-                            <div class="bg-white rounded-xl md:rounded-2xl border border-beres-border overflow-hidden hover:shadow-card transition-shadow flex flex-col group cursor-pointer">
-                                <!-- Image Placeholder -->
-                                <div class="aspect-square bg-gray-100 relative">
-                                    <div class="absolute inset-0 flex items-center justify-center text-gray-300 group-hover:scale-105 transition-transform duration-300">
-                                        <i class="ph ph-image text-4xl"></i>
-                                    </div>
-                                    <!-- Discount tag example on first item -->
-                                    ${p.name.includes("Semen") ? '<div class="absolute top-2 left-2 bg-beres-orange text-white text-[10px] font-bold px-2 py-1 rounded">-10%</div>' : ''}
-                                </div>
-                                
-                                <div class="p-3 md:p-4 flex flex-col flex-1">
-                                    <h3 class="text-sm md:text-base font-semibold text-beres-charcoal line-clamp-2 mb-1 group-hover:text-beres-green transition-colors">${p.name}</h3>
-                                    <p class="text-base md:text-lg font-bold text-beres-charcoal mb-2">${p.price}</p>
-                                    
-                                    <div class="mt-auto space-y-2">
-                                        <div class="flex items-center gap-1 text-[11px] md:text-xs text-beres-gray">
-                                            <i class="ph-fill ph-storefront text-beres-charcoal"></i>
-                                            <span class="truncate">${p.store}</span>
-                                        </div>
-                                        
-                                        <div class="flex flex-wrap items-center justify-between gap-y-1">
-                                            <div class="flex items-center gap-1 text-[11px] font-medium text-beres-gray">
-                                                <i class="ph-fill ph-map-pin text-beres-orange"></i>
-                                                ${p.dist}
-                                            </div>
-                                            <div class="flex items-center gap-1 text-[10px] text-gray-500">
-                                                <i class="ph-fill ph-star text-yellow-400"></i>
-                                                ${p.rating} | ${p.sold}
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="pt-1">
-                                            ${trustedBadge}
-                                        </div>
-
-                                        <button class="w-full mt-2 border border-beres-green text-beres-green hover:bg-beres-green hover:text-white font-semibold py-1.5 rounded-lg text-xs md:text-sm transition-colors flex items-center justify-center gap-1">
-                                            <i class="ph ph-shopping-cart-simple text-sm"></i>
-                                            <span class="hidden md:inline">Keranjang</span>
-                                            <span class="md:hidden">Beli</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `);
-                    });
-                </script>
-            </div>
-        </section>
-
-        <!-- LOCAL STORE DISCOVERY -->
-        <section class="mt-12 md:mt-20 px-4 sm:px-6 lg:px-8 bg-beres-greenLight/50 py-10 md:py-16 mx-4 sm:mx-0 rounded-2xl md:rounded-none">
-            <div class="max-w-[1400px] mx-auto">
-                <div class="mb-6 md:mb-8">
-                    <h2 class="text-xl md:text-3xl font-extrabold text-beres-charcoal mb-2">Terpercaya di Sekitar Lo</h2>
-                    <p class="text-sm md:text-base text-beres-gray">Temukan toko material pilihan di dekat lokasi lo.</p>
+            <!-- POPULAR CATEGORIES -->
+            <section id="kategori" class="mt-10 md:mt-16 px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 class="text-lg md:text-2xl font-bold text-beres-charcoal">Kategori Populer</h2>
+                    <a href="#" class="text-sm font-semibold text-beres-green hover:text-beres-green/80 flex items-center gap-1">
+                        Lihat Semua <i class="ph ph-caret-right"></i>
+                    </a>
                 </div>
+                <!-- Rendered dynamically via JS to bind shortcuts securely -->
+                <div id="popular-categories-container" class="flex overflow-x-auto hide-scrollbar gap-3 md:gap-6 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"></div>
+            </section>
 
-                <div class="flex overflow-x-auto hide-scrollbar gap-4 md:gap-6 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-                    
-                    <script>
-                        const stores = [
-                            { name: "Toko Berkah Dermawan", dist: "1.3 km", rating: "4.9", products: "2.4K", type: "Distributor" },
-                            { name: "Jaya Material Pusat", dist: "2.1 km", rating: "4.8", products: "1.2K", type: "Toko Retail" },
-                            { name: "Sumber Rejeki Bangunan", dist: "0.8 km", rating: "5.0", products: "800+", type: "Toko Retail" },
-                            { name: "Baja Makmur Sentosa", dist: "3.5 km", rating: "4.7", products: "500+", type: "Spesialis Besi" },
-                        ];
-
-                        stores.forEach(s => {
-                            document.write(`
-                                <div class="flex-none w-64 md:w-80 bg-white rounded-2xl p-5 border border-beres-border shadow-card flex flex-col">
-                                    <div class="flex items-start gap-4 mb-4">
-                                        <!-- Store Avatar -->
-                                        <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
-                                            <i class="ph-fill ph-storefront text-2xl text-gray-400"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="font-bold text-beres-charcoal text-base line-clamp-1 mb-1">${s.name}</h3>
-                                            <div class="flex items-center gap-1 bg-beres-greenLight text-beres-green px-1.5 py-0.5 rounded text-[10px] font-bold w-fit mb-1">
-                                                <i class="ph-fill ph-check-circle"></i> Terpercaya
-                                            </div>
-                                            <span class="text-xs text-beres-gray">${s.type}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between py-3 border-y border-gray-100 mb-4">
-                                        <div class="text-center">
-                                            <div class="flex items-center justify-center gap-1 text-sm font-bold text-beres-charcoal">
-                                                <i class="ph-fill ph-star text-yellow-400"></i> ${s.rating}
-                                            </div>
-                                            <span class="text-[10px] text-beres-gray">Rating</span>
-                                        </div>
-                                        <div class="w-px h-6 bg-gray-200"></div>
-                                        <div class="text-center">
-                                            <div class="flex items-center justify-center gap-1 text-sm font-bold text-beres-charcoal">
-                                                <i class="ph-fill ph-map-pin text-beres-orange"></i> ${s.dist}
-                                            </div>
-                                            <span class="text-[10px] text-beres-gray">Jarak</span>
-                                        </div>
-                                        <div class="w-px h-6 bg-gray-200"></div>
-                                        <div class="text-center">
-                                            <div class="text-sm font-bold text-beres-charcoal">${s.products}</div>
-                                            <span class="text-[10px] text-beres-gray">Produk</span>
-                                        </div>
-                                    </div>
-
-                                    <button class="w-full bg-beres-bg hover:bg-gray-200 text-beres-charcoal font-semibold py-2 rounded-xl text-sm transition-colors mt-auto">
-                                        Lihat Toko
-                                    </button>
-                                </div>
-                            `);
-                        });
-                    </script>
+            <!-- FOR YOU / PRODUCT DISCOVERY -->
+            <section id="pilihan-untuk-lo" class="mt-10 md:mt-16 px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 class="text-lg md:text-2xl font-bold text-beres-charcoal">Pilihan Untuk Lo</h2>
+                    <a href="#" class="text-sm font-semibold text-beres-green hover:text-beres-green/80 flex items-center gap-1">
+                        Lihat Semua <i class="ph ph-caret-right"></i>
+                    </a>
                 </div>
-            </div>
-        </section>
+                <!-- Injected via JS to ensure Single Source of Truth -->
+                <div id="for-you-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5"></div>
+            </section>
 
+            <!-- LOCAL STORE DISCOVERY -->
+            <section id="toko-terdekat" class="mt-12 md:mt-20 px-4 sm:px-6 lg:px-8 bg-beres-greenLight/50 py-10 md:py-16 mx-4 sm:mx-0 rounded-2xl md:rounded-none">
+                <div class="max-w-[1400px] mx-auto">
+                    <div class="mb-6 md:mb-8">
+                        <h2 class="text-xl md:text-3xl font-extrabold text-beres-charcoal mb-2">Terpercaya di Sekitar Lo</h2>
+                        <p class="text-sm md:text-base text-beres-gray">Temukan toko material pilihan di dekat lokasi lo.</p>
+                    </div>
+                    <div class="flex overflow-x-auto hide-scrollbar gap-4 md:gap-6 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+                        <script>
+                            const stores = [
+                                { name: "Toko Berkah Dermawan", dist: "1.3 km", rating: "4.9", products: "2.4K", type: "Distributor" },
+                                { name: "Jaya Material Pusat", dist: "2.1 km", rating: "4.8", products: "1.2K", type: "Toko Retail" },
+                                { name: "Sumber Rejeki Bangunan", dist: "0.8 km", rating: "5.0", products: "800+", type: "Toko Retail" },
+                                { name: "Baja Makmur Sentosa", dist: "3.5 km", rating: "4.7", products: "500+", type: "Spesialis Besi" },
+                            ];
+                            stores.forEach(s => {
+                                document.write(`
+                                    <div class="flex-none w-64 md:w-80 bg-white rounded-2xl p-5 border border-beres-border shadow-card flex flex-col">
+                                        <div class="flex items-start gap-4 mb-4">
+                                            <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
+                                                <i class="ph-fill ph-storefront text-2xl text-gray-400"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-beres-charcoal text-base line-clamp-1 mb-1">${s.name}</h3>
+                                                <div class="flex items-center gap-1 bg-beres-greenLight text-beres-green px-1.5 py-0.5 rounded text-[10px] font-bold w-fit mb-1"><i class="ph-fill ph-check-circle"></i> Terpercaya</div>
+                                                <span class="text-xs text-beres-gray">${s.type}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between py-3 border-y border-gray-100 mb-4">
+                                            <div class="text-center">
+                                                <div class="flex items-center justify-center gap-1 text-sm font-bold text-beres-charcoal"><i class="ph-fill ph-star text-yellow-400"></i> ${s.rating}</div>
+                                                <span class="text-[10px] text-beres-gray">Rating</span>
+                                            </div>
+                                            <div class="w-px h-6 bg-gray-200"></div>
+                                            <div class="text-center">
+                                                <div class="flex items-center justify-center gap-1 text-sm font-bold text-beres-charcoal"><i class="ph-fill ph-map-pin text-beres-orange"></i> ${s.dist}</div>
+                                                <span class="text-[10px] text-beres-gray">Jarak</span>
+                                            </div>
+                                            <div class="w-px h-6 bg-gray-200"></div>
+                                            <div class="text-center">
+                                                <div class="text-sm font-bold text-beres-charcoal">${s.products}</div>
+                                                <span class="text-[10px] text-beres-gray">Produk</span>
+                                            </div>
+                                        </div>
+                                        <button class="w-full bg-beres-bg hover:bg-gray-200 text-beres-charcoal font-semibold py-2 rounded-xl text-sm transition-colors mt-auto">Lihat Toko</button>
+                                    </div>
+                                `);
+                            });
+                        </script>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <!-- FOOTER -->
@@ -443,45 +391,37 @@
             
             <!-- TOP BENEFIT / TRUST STRIP -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 pb-10 md:pb-16">
-                
                 <div class="flex flex-col items-center text-center">
                     <i class="ph ph-shield-check text-3xl md:text-4xl text-white mb-3"></i>
                     <h4 class="text-white font-bold text-sm md:text-base uppercase tracking-wider mb-1">Terpercaya</h4>
                     <p class="text-white/70 text-xs md:text-sm">Toko & produk terverifikasi</p>
                 </div>
-
                 <div class="flex flex-col items-center text-center">
                     <i class="ph ph-truck text-3xl md:text-4xl text-white mb-3"></i>
                     <h4 class="text-white font-bold text-sm md:text-base uppercase tracking-wider mb-1">Pengiriman Cepat</h4>
                     <p class="text-white/70 text-xs md:text-sm">Langsung ke lokasi lo</p>
                 </div>
-
                 <div class="flex flex-col items-center text-center">
                     <i class="ph ph-medal text-3xl md:text-4xl text-white mb-3"></i>
                     <h4 class="text-white font-bold text-sm md:text-base uppercase tracking-wider mb-1">Kualitas Terjamin</h4>
                     <p class="text-white/70 text-xs md:text-sm">Produk pilihan terbaik</p>
                 </div>
-
                 <div class="flex flex-col items-center text-center">
                     <i class="ph ph-headset text-3xl md:text-4xl text-white mb-3"></i>
                     <h4 class="text-white font-bold text-sm md:text-base uppercase tracking-wider mb-1">Bantuan 24/7</h4>
                     <p class="text-white/70 text-xs md:text-sm">Siap membantu kapan saja</p>
                 </div>
-
             </div>
 
-            <!-- SUBTLE HORIZONTAL DIVIDER -->
             <div class="w-full border-t" style="border-color: rgba(255,255,255,0.18);"></div>
 
             <!-- MAIN FOOTER CONTENT -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 py-12 md:py-16">
                 
-                <!-- BRAND & NEWSLETTER AREA -->
                 <div class="lg:col-span-4 lg:pr-8">
                     <div class="flex items-center mb-6">
                         <img src="https://i.imgur.com/kwr4b5C.png" alt="BERES Material Logo" class="w-[110px] md:w-[140px] h-auto object-contain">
                     </div>
-                    
                     <h3 class="text-white text-lg md:text-xl font-bold mb-3 leading-snug">Semua kebutuhan material, tanpa perlu keliling toko.</h3>
                     <p class="text-white/70 text-sm leading-relaxed mb-6">Temukan material dari toko terpercaya di sekitar lo, pesan online, dan langsung diantar.</p>
                     <p class="text-white font-bold text-base mb-1">Cari, Klik, Beres.</p>
@@ -497,7 +437,6 @@
                         </form>
                     </div>
 
-                    <!-- Social Media Links -->
                     <div class="flex gap-5">
                         <a href="#" class="text-white/70 hover:text-white hover:-translate-y-1 transition-all" aria-label="Instagram"><i class="ph ph-instagram-logo text-2xl"></i></a>
                         <a href="#" class="text-white/70 hover:text-white hover:-translate-y-1 transition-all" aria-label="TikTok"><i class="ph ph-tiktok-logo text-2xl"></i></a>
@@ -508,7 +447,6 @@
 
                 <!-- NAVIGATION COLUMNS -->
                 <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 md:gap-8">
-                    
                     <!-- BERES Column -->
                     <div class="border-b border-white/10 md:border-none py-4 md:py-0 accordion-group">
                         <button class="footer-accordion-btn w-full flex justify-between items-center text-left text-white font-bold text-sm uppercase tracking-wide">
@@ -527,7 +465,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <!-- BELANJA Column -->
                     <div class="border-b border-white/10 md:border-none py-4 md:py-0 accordion-group">
                         <button class="footer-accordion-btn w-full flex justify-between items-center text-left text-white font-bold text-sm uppercase tracking-wide">
@@ -546,7 +483,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <!-- MITRA Column -->
                     <div class="border-b border-white/10 md:border-none py-4 md:py-0 accordion-group">
                         <button class="footer-accordion-btn w-full flex justify-between items-center text-left text-white font-bold text-sm uppercase tracking-wide">
@@ -564,7 +500,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <!-- BANTUAN Column -->
                     <div class="border-b border-white/10 md:border-none py-4 md:py-0 accordion-group">
                         <button class="footer-accordion-btn w-full flex justify-between items-center text-left text-white font-bold text-sm uppercase tracking-wide">
@@ -584,7 +519,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <!-- LEGAL Column -->
                     <div class="border-b border-white/10 md:border-none py-4 md:py-0 accordion-group">
                         <button class="footer-accordion-btn w-full flex justify-between items-center text-left text-white font-bold text-sm uppercase tracking-wide">
@@ -601,14 +535,11 @@
                             </ul>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <!-- SUBTLE HORIZONTAL DIVIDER -->
             <div class="w-full border-t" style="border-color: rgba(255,255,255,0.18);"></div>
 
-            <!-- BOTTOM COPYRIGHT AREA -->
             <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/50">
                 <p>&copy; 2026 BERES MATERIAL. All rights reserved.</p>
                 <div class="flex gap-6">
@@ -616,63 +547,17 @@
                     <a href="#" class="hover:text-white transition-colors">Terms & Conditions</a>
                 </div>
             </div>
-
         </div>
-
-        <!-- Footer Accordion Script for Mobile -->
-        <script>
-            (function() {
-                const accordionGroups = document.querySelectorAll('.accordion-group');
-                accordionGroups.forEach(group => {
-                    const btn = group.querySelector('.footer-accordion-btn');
-                    const content = group.querySelector('.footer-acc-content');
-                    const inner = group.querySelector('.footer-acc-inner');
-                    const plus = group.querySelector('.icon-plus');
-                    const minus = group.querySelector('.icon-minus');
-                    
-                    btn.addEventListener('click', () => {
-                        // Prevent accordion behavior on desktop breakpoints (>= 768px)
-                        if (window.innerWidth >= 768) return;
-                        
-                        const isOpen = inner.classList.contains('is-open');
-                        
-                        if (!isOpen) {
-                            // OPENING
-                            inner.classList.add('is-open');
-                            content.style.maxHeight = content.scrollHeight + "px";
-                            
-                            // Animate Plus to Minus
-                            plus.classList.remove('opacity-100', 'rotate-0', 'scale-100');
-                            plus.classList.add('opacity-0', 'rotate-90', 'scale-50');
-                            
-                            minus.classList.remove('opacity-0', '-rotate-90', 'scale-50');
-                            minus.classList.add('opacity-100', 'rotate-0', 'scale-100');
-                        } else {
-                            // CLOSING
-                            inner.classList.remove('is-open');
-                            content.style.maxHeight = "0px";
-                            
-                            // Animate Minus to Plus
-                            plus.classList.remove('opacity-0', 'rotate-90', 'scale-50');
-                            plus.classList.add('opacity-100', 'rotate-0', 'scale-100');
-                            
-                            minus.classList.remove('opacity-100', 'rotate-0', 'scale-100');
-                            minus.classList.add('opacity-0', '-rotate-90', 'scale-50');
-                        }
-                    });
-                });
-            })();
-        </script>
     </footer>
 
     <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-beres-border pb-safe z-40 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
         <div class="flex justify-around items-center h-16">
-            <a href="#" class="flex flex-col items-center justify-center w-full h-full text-beres-green">
+            <a href="#home" class="flex flex-col items-center justify-center w-full h-full text-beres-green home-link">
                 <i class="ph-fill ph-house text-2xl mb-1"></i>
                 <span class="text-[10px] font-bold">Home</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center w-full h-full text-beres-gray hover:text-beres-green transition-colors">
+            <a href="#pilihan-untuk-lo" class="flex flex-col items-center justify-center w-full h-full text-beres-gray hover:text-beres-green transition-colors">
                 <i class="ph ph-package text-2xl mb-1"></i>
                 <span class="text-[10px] font-semibold">Produk</span>
             </a>
@@ -687,90 +572,24 @@
         </div>
     </nav>
 
-    <!-- CART DRAWER (Hidden by default) -->
+    <!-- CART DRAWER -->
     <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    
     <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
-        <!-- Header -->
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
             <h2 class="text-lg font-bold text-beres-charcoal flex items-center gap-2">
-                <i class="ph ph-shopping-cart text-xl"></i> Keranjang (2)
+                <i class="ph ph-shopping-cart text-xl"></i> Keranjang (<span id="cartHeaderCount">0</span>)
             </h2>
             <button id="closeCart" class="p-2 text-gray-400 hover:text-beres-charcoal hover:bg-gray-100 rounded-full transition-colors">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
 
-        <!-- Cart Items (Scrollable) -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-            
-            <!-- Store Group 1 -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center gap-2 mb-3 pb-3 border-b border-gray-50">
-                    <input type="checkbox" checked class="accent-beres-green w-4 h-4 rounded">
-                    <i class="ph-fill ph-storefront text-beres-gray"></i>
-                    <span class="font-bold text-sm text-beres-charcoal">Toko Bangunan Berkah</span>
-                </div>
-                
-                <!-- Item -->
-                <div class="flex gap-3">
-                    <input type="checkbox" checked class="accent-beres-green w-4 h-4 rounded mt-2">
-                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0">
-                        <i class="ph ph-image text-2xl"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="text-sm font-medium text-beres-charcoal line-clamp-2">Semen Tiga Roda 40 Kg</h4>
-                        <p class="font-bold text-beres-charcoal mt-1">Rp 68.000</p>
-                        
-                        <div class="flex items-center justify-between mt-2">
-                            <button class="text-xs text-red-500 font-medium">Hapus</button>
-                            <div class="flex items-center border border-gray-200 rounded-lg">
-                                <button class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-50">-</button>
-                                <span class="w-8 text-center text-sm font-medium">10</span>
-                                <button class="w-7 h-7 flex items-center justify-center text-beres-green hover:bg-gray-50 font-bold">+</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Store Group 2 -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center gap-2 mb-3 pb-3 border-b border-gray-50">
-                    <input type="checkbox" checked class="accent-beres-green w-4 h-4 rounded">
-                    <i class="ph-fill ph-storefront text-beres-gray"></i>
-                    <span class="font-bold text-sm text-beres-charcoal">Jaya Material</span>
-                </div>
-                
-                <!-- Item -->
-                <div class="flex gap-3">
-                    <input type="checkbox" checked class="accent-beres-green w-4 h-4 rounded mt-2">
-                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0">
-                        <i class="ph ph-image text-2xl"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="text-sm font-medium text-beres-charcoal line-clamp-2">Pipa PVC 3/4 inch Wavin</h4>
-                        <p class="font-bold text-beres-charcoal mt-1">Rp 24.500</p>
-                        
-                        <div class="flex items-center justify-between mt-2">
-                            <button class="text-xs text-red-500 font-medium">Hapus</button>
-                            <div class="flex items-center border border-gray-200 rounded-lg">
-                                <button class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-50">-</button>
-                                <span class="w-8 text-center text-sm font-medium">5</span>
-                                <button class="w-7 h-7 flex items-center justify-center text-beres-green hover:bg-gray-50 font-bold">+</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Footer / Checkout -->
+        <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"></div>
+        
         <div class="p-6 bg-white border-t border-gray-100 pb-safe sm:pb-6 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
             <div class="flex justify-between items-center mb-4">
                 <span class="text-gray-500 text-sm">Total Belanja</span>
-                <span class="font-extrabold text-xl text-beres-charcoal">Rp 802.500</span>
+                <span id="cartTotalDisplay" class="font-extrabold text-xl text-beres-charcoal">Rp 0</span>
             </div>
             <button class="w-full bg-beres-green hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2">
                 Lanjut Checkout <i class="ph-bold ph-arrow-right"></i>
@@ -778,11 +597,513 @@
         </div>
     </div>
 
-    <!-- INTERACTION SCRIPTS -->
+    <!-- MOBILE NAVIGATION DRAWER (FULL-SCREEN) -->
+    <div id="navDrawer" class="fixed top-0 right-0 w-full h-[100dvh] bg-white z-[60] transform translate-x-full flex flex-col shadow-2xl lg:hidden overflow-hidden" style="transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);">
+        <div class="px-6 py-5 flex items-center justify-between border-b border-gray-100 flex-shrink-0 bg-white">
+            <img src="https://i.imgur.com/kwr4b5C.png" alt="BERES Material" class="w-[100px] h-auto object-contain">
+            <button id="closeNav" class="p-2 text-beres-charcoal hover:bg-gray-50 hover:text-beres-green rounded-full transition-colors -mr-2">
+                <i class="ph ph-x text-xl font-bold"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-safe bg-white">
+            <nav class="flex flex-col">
+                <a href="#home" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">HOME</a>
+
+                <div class="border-b border-gray-100 nav-accordion-group">
+                    <button class="nav-accordion-btn w-full px-6 py-5 flex justify-between items-center text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider transition-colors hover:bg-gray-50">
+                        KATEGORI
+                        <div class="relative w-4 h-4 flex items-center justify-center">
+                            <i class="ph ph-plus absolute nav-icon-plus text-beres-gray text-base transition-all duration-400 ease-out origin-center opacity-100 rotate-0 scale-100"></i>
+                            <i class="ph ph-minus absolute nav-icon-minus text-beres-gray text-base transition-all duration-400 ease-out origin-center opacity-0 -rotate-90 scale-50"></i>
+                        </div>
+                    </button>
+                    <div class="nav-acc-content">
+                        <ul class="nav-acc-inner px-6 pb-5 pt-1 space-y-4 text-sm text-beres-gray font-medium">
+                            <li><a href="#" data-category="Semen" class="category-shortcut hover:text-beres-green transition-colors block">Semen</a></li>
+                            <li><a href="#" data-category="Pipa" class="category-shortcut hover:text-beres-green transition-colors block">Pipa</a></li>
+                            <li><a href="#" data-category="Besi & Baja" class="category-shortcut hover:text-beres-green transition-colors block">Besi & Baja</a></li>
+                            <li><a href="#" data-category="Kayu" class="category-shortcut hover:text-beres-green transition-colors block">Kayu</a></li>
+                            <li><a href="#" data-category="Keramik" class="category-shortcut hover:text-beres-green transition-colors block">Keramik</a></li>
+                            <li><a href="#" data-category="Cat" class="category-shortcut hover:text-beres-green transition-colors block">Cat</a></li>
+                            <li><a href="#" data-category="Atap" class="category-shortcut hover:text-beres-green transition-colors block">Atap</a></li>
+                            <li><a href="#" data-category="Perkakas" class="category-shortcut hover:text-beres-green transition-colors block">Perkakas</a></li>
+                            <li><a href="#" data-category="Listrik" class="category-shortcut hover:text-beres-green transition-colors block">Listrik</a></li>
+                            <li><a href="#" data-category="Sanitasi" class="category-shortcut hover:text-beres-green transition-colors block">Sanitasi</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <a href="#toko-terdekat" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">TOKO TERDEKAT</a>
+                <a href="#pilihan-untuk-lo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PRODUK</a>
+                <a href="#promo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PROMO</a>
+                <a href="#pilihan-untuk-lo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PILIHAN UNTUK LO</a>
+                <a href="#" class="w-full px-6 py-5 flex flex-col text-left border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click" id="navProfileLink">
+                    <span class="text-beres-charcoal font-bold text-[13px] uppercase tracking-wider mb-1">PROFIL</span>
+                    <span id="navProfileDesc" class="text-beres-gray text-xs font-medium leading-relaxed">Masuk atau buat profil untuk pengalaman BERES yang lebih lengkap</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT: DATA & INTERACTION LOGIC       -->
+    <!-- ========================================== -->
     <script>
+        window.formatRupiah = function(angka) {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        window.cartManager = {
+            cart: JSON.parse(localStorage.getItem('beres_cart')) || [],
+            save() { localStorage.setItem('beres_cart', JSON.stringify(this.cart)); this.render(); },
+            add(productId) {
+                const product = window.marketplaceData.find(p => p.id === productId);
+                if (!product) return;
+                const existingItem = this.cart.find(item => item.id === productId);
+                if (existingItem) { existingItem.qty += 1; } else { this.cart.push({ ...product, qty: 1 }); }
+                this.save();
+                this.showToast();
+            },
+            updateQty(productId, delta) {
+                const item = this.cart.find(item => item.id === productId);
+                if (!item) return;
+                item.qty += delta;
+                if (item.qty <= 0) { this.remove(productId); } else { this.save(); }
+            },
+            remove(productId) {
+                this.cart = this.cart.filter(item => item.id !== productId);
+                this.save();
+            },
+            clear() { this.cart = []; this.save(); },
+            showToast() {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-semibold shadow-2xl z-[100] transition-opacity duration-300';
+                toast.innerHTML = '<div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-beres-greenLight"></i> Produk ditambahkan ke keranjang</div>';
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 2000);
+            },
+            render() {
+                const container = document.getElementById('cartItemsContainer');
+                const badge = document.getElementById('cartBadge');
+                const headerCount = document.getElementById('cartHeaderCount');
+                const totalDisplay = document.getElementById('cartTotalDisplay');
+                
+                let totalQty = 0; let totalPrice = 0;
+                this.cart.forEach(item => { totalQty += item.qty; totalPrice += (item.price * item.qty); });
+
+                if (badge) {
+                    badge.textContent = totalQty;
+                    if (totalQty > 0) {
+                        badge.classList.remove('hidden'); badge.classList.add('flex', 'scale-110');
+                        setTimeout(() => badge.classList.remove('scale-110'), 150);
+                    } else {
+                        badge.classList.add('hidden'); badge.classList.remove('flex');
+                    }
+                }
+                
+                if (headerCount) headerCount.textContent = totalQty;
+                if (totalDisplay) totalDisplay.textContent = window.formatRupiah(totalPrice);
+
+                if (this.cart.length === 0) {
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center py-12 text-center h-full">
+                                <div class="w-20 h-20 bg-white shadow-sm border border-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300"><i class="ph ph-shopping-cart text-4xl"></i></div>
+                                <h3 class="text-base font-bold text-beres-charcoal mb-2">Keranjang masih kosong</h3>
+                                <p class="text-sm text-beres-gray mb-6">Yuk cari material yang kamu butuhkan.</p>
+                                <button onclick="document.getElementById('closeCart').click()" class="bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors shadow-sm">Mulai Belanja</button>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                const grouped = {};
+                this.cart.forEach(item => {
+                    if (!grouped[item.store]) grouped[item.store] = [];
+                    grouped[item.store].push(item);
+                });
+
+                let html = '';
+                for (const store in grouped) {
+                    html += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-50">
+                                <div class="flex items-center gap-2"><i class="ph-fill ph-storefront text-beres-gray"></i><span class="font-bold text-sm text-beres-charcoal">${store}</span></div>
+                            </div>
+                    `;
+                    grouped[store].forEach(item => {
+                        html += `
+                            <div class="flex gap-3 mb-4 last:mb-0">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 flex-shrink-0 relative overflow-hidden"><i class="ph ph-image text-2xl"></i></div>
+                                <div class="flex-1 flex flex-col">
+                                    <h4 class="text-sm font-medium text-beres-charcoal line-clamp-2">${item.name}</h4>
+                                    <p class="font-bold text-beres-charcoal mt-1">${window.formatRupiah(item.price)}</p>
+                                    <div class="flex items-center justify-between mt-auto pt-2">
+                                        <button onclick="window.cartManager.remove(${item.id})" class="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">Hapus</button>
+                                        <div class="flex items-center border border-gray-200 rounded-lg bg-white">
+                                            <button onclick="window.cartManager.updateQty(${item.id}, -1)" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-l-lg transition-colors">-</button>
+                                            <span class="w-8 text-center text-sm font-medium">${item.qty}</span>
+                                            <button onclick="window.cartManager.updateQty(${item.id}, 1)" class="w-7 h-7 flex items-center justify-center text-beres-green hover:bg-gray-50 rounded-r-lg font-bold transition-colors">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+                if(container) container.innerHTML = html;
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- Cart Drawer Logic ---
+            // 1. GLOBAL MARKETPLACE PRODUCT DATA
+            window.marketplaceData = [
+                { id: 1, name: "Semen Tiga Roda 40 Kg", price: 68000, store: "Toko Bangunan Berkah", dist: "1.3 km", trusted: true, rating: "4.9", sold: "1rb+", category: "Semen", brand: "Tiga Roda", active: true },
+                { id: 2, name: "Pipa PVC 3/4 inch Wavin", price: 24500, store: "Jaya Material", dist: "2.1 km", trusted: true, rating: "4.8", sold: "500+", category: "Pipa", brand: "Wavin", active: true },
+                { id: 3, name: "Pipa PVC Rucika 1/2 Inch", price: 19000, store: "Toko Bangunan Berkah", dist: "1.3 km", trusted: true, rating: "4.9", sold: "300+", category: "Pipa", brand: "Rucika", active: true },
+                { id: 4, name: "Cat Tembok Dulux Catylac 5 Kg", price: 145000, store: "Sumber Rejeki", dist: "0.8 km", trusted: true, rating: "5.0", sold: "200+", category: "Cat", brand: "Dulux", active: true },
+                { id: 5, name: "Besi Beton Polos 8mm (12m)", price: 45000, store: "Baja Makmur", dist: "3.5 km", trusted: true, rating: "4.7", sold: "3rb+", category: "Besi & Baja", brand: "Polos", active: true },
+                { id: 6, name: "Keramik Lantai 40x40 Putih Polos", price: 48000, store: "Mitra Keramik", dist: "1.5 km", trusted: false, rating: "4.6", sold: "800+", category: "Keramik", brand: "Polos", active: true },
+                { id: 7, name: "Kabel Listrik Eterna NYM 2x1.5", price: 320000, store: "Toko Bangunan Berkah", dist: "1.3 km", trusted: true, rating: "4.9", sold: "150+", category: "Listrik", brand: "Eterna", active: true },
+                { id: 8, name: "Paku Kayu 5cm (1 Kg)", price: 18000, store: "Jaya Material", dist: "2.1 km", trusted: true, rating: "4.8", sold: "1rb+", category: "Perkakas", brand: "Paku", active: true },
+                { id: 9, name: "Triplek / Plywood 9mm", price: 65000, store: "Sumber Rejeki", dist: "0.8 km", trusted: true, rating: "5.0", sold: "400+", category: "Kayu", brand: "Custom", active: true },
+                { id: 10, name: "Semen Gresik 50 Kg", price: 72000, store: "Jaya Material", dist: "2.1 km", trusted: true, rating: "4.8", sold: "2rb+", category: "Semen", brand: "Gresik", active: true },
+                { id: 11, name: "Semen Mortar Instan", price: 85000, store: "Sumber Rejeki", dist: "0.8 km", trusted: true, rating: "4.9", sold: "500+", category: "Semen", brand: "Mortar Utama", active: true },
+                { id: 12, name: "Genteng Metal Pasir", price: 35000, store: "Baja Makmur", dist: "3.5 km", trusted: true, rating: "4.8", sold: "1rb+", category: "Atap", brand: "Metalindo", active: true },
+                { id: 13, name: "Kloset Duduk Toto", price: 1450000, store: "Mitra Keramik", dist: "1.5 km", trusted: true, rating: "4.9", sold: "200+", category: "Sanitasi", brand: "Toto", active: true }
+            ];
+
+            const activeProducts = window.marketplaceData.filter(p => p.active);
+
+            // Universal Product Card Renderer
+            function renderProductCard(p) {
+                const trustedBadge = p.trusted ? `
+                    <div class="flex items-center gap-1 bg-beres-greenLight text-beres-green px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        <i class="ph-fill ph-check-circle"></i> Terpercaya
+                    </div>
+                ` : '';
+                
+                const discountTag = p.name.includes("Semen") ? '<div class="absolute top-2 left-2 bg-beres-orange text-white text-[10px] font-bold px-2 py-1 rounded">-10%</div>' : '';
+
+                return `
+                    <div class="bg-white rounded-xl md:rounded-2xl border border-beres-border overflow-hidden hover:shadow-card transition-shadow flex flex-col group cursor-pointer" onclick="console.log('Navigate to product:', ${p.id})">
+                        <div class="aspect-square bg-gray-100 relative">
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-300 group-hover:scale-105 transition-transform duration-300">
+                                <i class="ph ph-image text-4xl"></i>
+                            </div>
+                            ${discountTag}
+                        </div>
+                        <div class="p-3 md:p-4 flex flex-col flex-1">
+                            <h3 class="text-sm md:text-base font-semibold text-beres-charcoal line-clamp-2 mb-1 group-hover:text-beres-green transition-colors">${p.name}</h3>
+                            <p class="text-base md:text-lg font-bold text-beres-charcoal mb-2">${window.formatRupiah(p.price)}</p>
+                            <div class="mt-auto space-y-2">
+                                <div class="flex items-center gap-1 text-[11px] md:text-xs text-beres-gray">
+                                    <i class="ph-fill ph-storefront text-beres-charcoal"></i>
+                                    <span class="truncate">${p.store}</span>
+                                </div>
+                                <div class="flex flex-wrap items-center justify-between gap-y-1">
+                                    <div class="flex items-center gap-1 text-[11px] font-medium text-beres-gray">
+                                        <i class="ph-fill ph-map-pin text-beres-orange"></i>
+                                        ${p.dist}
+                                    </div>
+                                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                                        <i class="ph-fill ph-star text-yellow-400"></i>
+                                        ${p.rating} | ${p.sold}
+                                    </div>
+                                </div>
+                                <div class="pt-1">${trustedBadge}</div>
+                                
+                                <!-- Add To Cart Action -->
+                                <button onclick="event.stopPropagation(); window.cartManager.add(${p.id});" class="w-full mt-2 relative z-10 border border-beres-green text-beres-green hover:bg-beres-green hover:text-white font-semibold py-1.5 rounded-lg text-xs md:text-sm transition-colors flex items-center justify-center gap-1">
+                                    <i class="ph ph-shopping-cart-simple text-sm"></i>
+                                    <span class="hidden md:inline">Keranjang</span>
+                                    <span class="md:hidden">Beli</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Populate Homepage "Pilihan Untuk Lo" Grid
+            const forYouGrid = document.getElementById('for-you-grid');
+            if(forYouGrid) {
+                forYouGrid.innerHTML = activeProducts.slice(0, 8).map(renderProductCard).join('');
+            }
+
+            // Initialize Cart UI right away
+            window.cartManager.render();
+
+            // ----------------------------------------------------
+            // POPULAR CATEGORIES RENDER & SHORTCUT BINDING
+            // ----------------------------------------------------
+            const popularCategoriesList = [
+                { name: "Semen", icon: "ph-wall" }, { name: "Besi & Baja", icon: "ph-grid-nine" },
+                { name: "Keramik", icon: "ph-squares-four" }, { name: "Cat", icon: "ph-paint-bucket" },
+                { name: "Kayu", icon: "ph-tree" }, { name: "Pipa", icon: "ph-drop" },
+                { name: "Listrik", icon: "ph-lightning" }, { name: "Perkakas", icon: "ph-wrench" },
+                { name: "Atap", icon: "ph-house-line" }, { name: "Sanitasi", icon: "ph-bathtub" }
+            ];
+            
+            const catContainer = document.getElementById('popular-categories-container');
+            if(catContainer) {
+                catContainer.innerHTML = popularCategoriesList.map(cat => `
+                    <a href="#" class="flex-none group category-shortcut" data-category="${cat.name}">
+                        <div class="w-20 md:w-28 flex flex-col items-center gap-2 md:gap-3">
+                            <div class="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-2xl flex items-center justify-center group-hover:bg-gray-200 transition-colors transform group-active:scale-95 duration-200">
+                                <i class="ph ${cat.icon} text-3xl md:text-4xl text-beres-charcoal group-hover:text-beres-green transition-colors"></i>
+                            </div>
+                            <span class="text-[11px] md:text-sm font-medium text-center text-beres-charcoal line-clamp-1">${cat.name}</span>
+                        </div>
+                    </a>
+                `).join('');
+            }
+
+
+            // ----------------------------------------------------
+            // SEARCH ENGINE LOGIC
+            // ----------------------------------------------------
+            function searchMarketplace(query) {
+                if (!query) return [];
+                const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+                
+                return activeProducts.filter(p => {
+                    const searchableString = `${p.name} ${p.category} ${p.brand} ${p.store}`.toLowerCase();
+                    return tokens.every(token => searchableString.includes(token));
+                }).sort((a, b) => {
+                    const qLower = query.toLowerCase().trim();
+                    const aExact = a.name.toLowerCase().includes(qLower) ? 1 : 0;
+                    const bExact = b.name.toLowerCase().includes(qLower) ? 1 : 0;
+                    return bExact - aExact;
+                });
+            }
+
+            const searchInputs = document.querySelectorAll('.search-input');
+            const searchClears = document.querySelectorAll('.search-clear');
+            const searchDropdowns = document.querySelectorAll('.search-dropdown');
+            
+            const homepageSections = document.getElementById('homepage-sections');
+            const searchResultsSection = document.getElementById('search-results-section');
+            const searchResultsGrid = document.getElementById('search-results-grid');
+            const searchQueryDisplay = document.getElementById('search-query-display');
+            const searchCountDisplay = document.getElementById('search-count-display');
+            const searchEmptyState = document.getElementById('search-empty-state');
+            
+            let debounceTimer;
+
+            function restoreHomepage() {
+                homepageSections.style.display = 'block';
+                searchResultsSection.classList.add('hidden');
+                searchInputs.forEach(input => input.value = '');
+                searchClears.forEach(btn => btn.classList.add('hidden'));
+                searchDropdowns.forEach(dropdown => dropdown.classList.add('hidden'));
+            }
+
+            function displaySearchResults(query, results) {
+                searchInputs.forEach(input => input.value = query);
+                searchClears.forEach(btn => btn.classList.remove('hidden'));
+                searchDropdowns.forEach(dropdown => dropdown.classList.add('hidden'));
+                
+                homepageSections.style.display = 'none';
+                searchResultsSection.classList.remove('hidden');
+                searchQueryDisplay.textContent = query;
+                
+                if (results.length > 0) {
+                    searchEmptyState.classList.add('hidden');
+                    searchResultsGrid.classList.remove('hidden');
+                    searchCountDisplay.textContent = `${results.length} produk ditemukan`;
+                    searchResultsGrid.innerHTML = results.map(renderProductCard).join('');
+                } else {
+                    searchResultsGrid.classList.add('hidden');
+                    searchEmptyState.classList.remove('hidden');
+                    searchEmptyState.classList.add('flex');
+                    searchCountDisplay.textContent = `0 produk ditemukan`;
+                    
+                    // Empty State Text contextualization
+                    const isCategory = popularCategoriesList.some(c => c.name.toLowerCase() === query.toLowerCase());
+                    const emptyTitle = document.getElementById('empty-state-title');
+                    const emptyDesc = document.getElementById('empty-state-desc');
+                    if(emptyTitle && emptyDesc) {
+                        if (isCategory) {
+                            emptyTitle.textContent = "Belum ada produk di kategori ini";
+                            emptyDesc.textContent = "Coba kategori lain atau cari produk yang kamu butuhkan.";
+                        } else {
+                            emptyTitle.textContent = "Produk belum ditemukan";
+                            emptyDesc.textContent = "Kami tidak menemukan produk yang cocok dengan pencarian lo. Coba gunakan kata kunci lain atau periksa ejaan.";
+                        }
+                    }
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                if(document.getElementById('navDrawer') && !document.getElementById('navDrawer').classList.contains('translate-x-full')) {
+                    toggleNav();
+                }
+            }
+
+            // Global search executor for Shortcuts
+            window.executeSearch = function(query) {
+                if (!query) return;
+                const results = searchMarketplace(query);
+                displaySearchResults(query, results);
+            };
+
+            // Bind all Category Shortcuts dynamically
+            document.querySelectorAll('.category-shortcut').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const catName = link.getAttribute('data-category');
+                    window.executeSearch(catName);
+                });
+            });
+
+            searchInputs.forEach((input, index) => {
+                const clearBtn = searchClears[index];
+                const dropdown = searchDropdowns[index];
+
+                const renderDropdown = (query, results) => {
+                    if (!query || query.length === 0) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    
+                    dropdown.classList.remove('hidden');
+                    dropdown.classList.add('flex');
+                    
+                    if (results.length === 0) {
+                        dropdown.innerHTML = `<div class="px-4 py-3 text-sm text-beres-gray">Tidak ada hasil untuk "${query}"</div>`;
+                        return;
+                    }
+
+                    const suggestions = results.slice(0, 5);
+                    let html = suggestions.map(r => `
+                        <button class="suggestion-item w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between transition-colors border-b border-gray-50 last:border-0" data-id="${r.id}">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-beres-charcoal line-clamp-1">${r.name}</span>
+                                <span class="text-xs text-beres-gray">${r.category} &bull; ${r.store}</span>
+                            </div>
+                            <span class="text-sm font-bold text-beres-charcoal">${window.formatRupiah(r.price)}</span>
+                        </button>
+                    `).join('');
+
+                    if (results.length > 5) {
+                        html += `
+                            <button class="see-all-item w-full text-center px-4 py-3 bg-gray-50 hover:bg-gray-100 text-beres-green font-semibold text-sm transition-colors border-t border-gray-100">
+                                Lihat semua ${results.length} hasil
+                            </button>
+                        `;
+                    }
+                    
+                    dropdown.innerHTML = html;
+
+                    dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            displaySearchResults(query, results);
+                        });
+                    });
+                    
+                    const seeAllBtn = dropdown.querySelector('.see-all-item');
+                    if(seeAllBtn) {
+                        seeAllBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            displaySearchResults(query, results);
+                        });
+                    }
+                };
+
+                input.addEventListener('input', (e) => {
+                    const query = e.target.value;
+                    clearTimeout(debounceTimer);
+                    
+                    if (query.trim().length > 0) {
+                        clearBtn.classList.remove('hidden');
+                        debounceTimer = setTimeout(() => {
+                            const results = searchMarketplace(query);
+                            renderDropdown(query, results);
+                        }, 250);
+                    } else {
+                        clearBtn.classList.add('hidden');
+                        dropdown.classList.add('hidden');
+                        if(searchResultsSection.classList.contains('hidden') === false) {
+                            restoreHomepage();
+                        }
+                    }
+                });
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const query = e.target.value.trim();
+                        if(query) {
+                            const results = searchMarketplace(query);
+                            displaySearchResults(query, results);
+                        }
+                    }
+                });
+
+                input.addEventListener('focus', () => {
+                    if (input.value.trim().length > 0) {
+                        const results = searchMarketplace(input.value);
+                        renderDropdown(input.value, results);
+                    }
+                });
+                
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        dropdown.classList.add('hidden');
+                    }, 150);
+                });
+
+                clearBtn.addEventListener('click', () => {
+                    input.value = '';
+                    clearBtn.classList.add('hidden');
+                    dropdown.classList.add('hidden');
+                    input.focus();
+                    restoreHomepage();
+                });
+            });
+
+            document.querySelectorAll('.home-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    restoreHomepage();
+                });
+            });
+
+
+            // ----------------------------------------------------
+            // AUTH & DRAWERS LOGIC
+            // ----------------------------------------------------
+            const isAuthenticated = false; 
+
+            const navProfileDesc = document.getElementById('navProfileDesc');
+            if (navProfileDesc) {
+                navProfileDesc.textContent = isAuthenticated ? "Lihat profil Anda" : "Masuk atau buat profil untuk pengalaman BERES yang lebih lengkap";
+            }
+
+            const desktopLoggedOut = document.getElementById('desktopLoggedOut');
+            const desktopLoggedIn = document.getElementById('desktopLoggedIn');
+            
+            if (desktopLoggedOut && desktopLoggedIn) {
+                if (isAuthenticated) {
+                    desktopLoggedOut.classList.add('hidden');
+                    desktopLoggedOut.classList.remove('flex');
+                    desktopLoggedIn.classList.remove('hidden');
+                    desktopLoggedIn.classList.add('flex');
+                } else {
+                    desktopLoggedOut.classList.remove('hidden');
+                    desktopLoggedOut.classList.add('flex');
+                    desktopLoggedIn.classList.add('hidden');
+                    desktopLoggedIn.classList.remove('flex');
+                }
+            }
+
+            // Cart Drawer
             const cartBtn = document.getElementById('cartBtn');
             const closeCart = document.getElementById('closeCart');
             const cartDrawer = document.getElementById('cartDrawer');
@@ -790,9 +1111,7 @@
             
             function toggleCart() {
                 const isOpen = !cartDrawer.classList.contains('translate-x-full');
-                
                 if (isOpen) {
-                    // Close
                     cartDrawer.classList.add('translate-x-full');
                     cartOverlay.classList.add('opacity-0');
                     setTimeout(() => {
@@ -800,10 +1119,8 @@
                         document.body.classList.remove('modal-open');
                     }, 300);
                 } else {
-                    // Open
                     cartOverlay.classList.remove('hidden');
                     document.body.classList.add('modal-open');
-                    // Small delay to allow display:block to apply before opacity transition
                     setTimeout(() => {
                         cartOverlay.classList.remove('opacity-0');
                         cartDrawer.classList.remove('translate-x-full');
@@ -811,12 +1128,100 @@
                 }
             }
 
-            cartBtn.addEventListener('click', toggleCart);
-            closeCart.addEventListener('click', toggleCart);
-            cartOverlay.addEventListener('click', toggleCart);
+            if(cartBtn) cartBtn.addEventListener('click', toggleCart);
+            if(closeCart) closeCart.addEventListener('click', toggleCart);
+            if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
 
+            // Nav Drawer
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const closeNav = document.getElementById('closeNav');
+            const navDrawer = document.getElementById('navDrawer');
+            
+            function toggleNav() {
+                if (window.innerWidth >= 1024) return;
+                const isOpen = !navDrawer.classList.contains('translate-x-full');
+                if (isOpen) {
+                    navDrawer.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        if (document.getElementById('cartDrawer') && document.getElementById('cartDrawer').classList.contains('translate-x-full')) {
+                            document.body.classList.remove('modal-open');
+                        }
+                    }, 400); 
+                } else {
+                    document.body.classList.add('modal-open');
+                    setTimeout(() => {
+                        navDrawer.classList.remove('translate-x-full');
+                    }, 10);
+                }
+            }
 
-            // --- Hero Carousel Logic (Desktop Arrows & Auto-slide) ---
+            if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleNav);
+            if (closeNav) closeNav.addEventListener('click', toggleNav);
+            
+            const smoothScrollLinks = document.querySelectorAll('.nav-item');
+            smoothScrollLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    let targetId = this.getAttribute('href');
+                    if (targetId === '#' || !targetId) return;
+                    
+                    if (searchResultsSection.classList.contains('hidden') === false && targetId !== '#') {
+                        restoreHomepage();
+                    }
+                    if (targetId === '#produk') targetId = '#pilihan-untuk-lo';
+                    
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        e.preventDefault();
+                        const isMobileDrawer = this.closest('#navDrawer');
+                        
+                        if (isMobileDrawer && window.innerWidth < 1024) {
+                            toggleNav();
+                            setTimeout(() => {
+                                targetElement.scrollIntoView({ behavior: 'smooth' });
+                            }, 450); 
+                        } else {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                });
+            });
+
+            // Accordion Logic
+            const accordionGroups = document.querySelectorAll('.accordion-group, .nav-accordion-group');
+            accordionGroups.forEach(group => {
+                const btn = group.querySelector('.footer-accordion-btn, .nav-accordion-btn');
+                const content = group.querySelector('.footer-acc-content, .nav-acc-content');
+                const inner = group.querySelector('.footer-acc-inner, .nav-acc-inner');
+                const plus = group.querySelector('.icon-plus, .nav-icon-plus');
+                const minus = group.querySelector('.icon-minus, .nav-icon-minus');
+                
+                if(!btn) return;
+
+                btn.addEventListener('click', () => {
+                    if (group.classList.contains('accordion-group') && window.innerWidth >= 768) return;
+                    
+                    const isOpen = inner.classList.contains('is-open');
+                    
+                    if (!isOpen) {
+                        inner.classList.add('is-open');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        plus.classList.remove('opacity-100', 'rotate-0', 'scale-100');
+                        plus.classList.add('opacity-0', 'rotate-90', 'scale-50');
+                        minus.classList.remove('opacity-0', '-rotate-90', 'scale-50');
+                        minus.classList.add('opacity-100', 'rotate-0', 'scale-100');
+                    } else {
+                        inner.classList.remove('is-open');
+                        content.style.maxHeight = "0px";
+                        plus.classList.remove('opacity-0', 'rotate-90', 'scale-50');
+                        plus.classList.add('opacity-100', 'rotate-0', 'scale-100');
+                        minus.classList.remove('opacity-100', 'rotate-0', 'scale-100');
+                        minus.classList.add('opacity-0', '-rotate-90', 'scale-50');
+                    }
+                });
+            });
+
+            // Carousel Logic
             const carousel = document.getElementById('heroCarousel');
             const prevBtn = document.getElementById('prevSlide');
             const nextBtn = document.getElementById('nextSlide');
@@ -826,14 +1231,10 @@
             const slideCount = 2;
 
             function updateCarousel(index) {
-                // Scroll container
+                if(!carousel) return;
                 const slideWidth = carousel.clientWidth;
-                carousel.scrollTo({
-                    left: index * slideWidth,
-                    behavior: 'smooth'
-                });
+                carousel.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
 
-                // Update dots
                 dots.forEach((dot, i) => {
                     if (i === index) {
                         dot.classList.replace('w-1.5', 'w-6');
@@ -843,51 +1244,32 @@
                         dot.classList.replace('bg-white', 'bg-white/50');
                     }
                 });
-                
                 currentSlide = index;
             }
 
             if(nextBtn && prevBtn) {
-                nextBtn.addEventListener('click', () => {
-                    const next = (currentSlide + 1) % slideCount;
-                    updateCarousel(next);
-                });
-
-                prevBtn.addEventListener('click', () => {
-                    const prev = (currentSlide - 1 + slideCount) % slideCount;
-                    updateCarousel(prev);
-                });
+                nextBtn.addEventListener('click', () => updateCarousel((currentSlide + 1) % slideCount));
+                prevBtn.addEventListener('click', () => updateCarousel((currentSlide - 1 + slideCount) % slideCount));
             }
 
-            // Optional Auto-slide
-            setInterval(() => {
-                // Only auto slide if user isn't actively hovering/touching
-                if (!carousel.matches(':hover') && !cartDrawer.matches(':not(.translate-x-full)')) {
-                     const next = (currentSlide + 1) % slideCount;
-                     updateCarousel(next);
-                }
-            }, 5000);
-
-            // Update dots on manual scroll (mobile swipe)
-            carousel.addEventListener('scroll', () => {
-                // Throttle this in production, but fine for simple demo
-                const slideWidth = carousel.clientWidth;
-                const scrollPos = carousel.scrollLeft;
-                const index = Math.round(scrollPos / slideWidth);
-                
-                if(index !== currentSlide && index >= 0 && index < slideCount) {
-                    currentSlide = index;
-                    dots.forEach((dot, i) => {
-                        if (i === index) {
-                            dot.classList.replace('w-1.5', 'w-6');
-                            dot.classList.replace('bg-white/50', 'bg-white');
-                        } else {
-                            dot.classList.replace('w-6', 'w-1.5');
-                            dot.classList.replace('bg-white', 'bg-white/50');
-                        }
-                    });
-                }
-            });
+            if(carousel) {
+                carousel.addEventListener('scroll', () => {
+                    const slideWidth = carousel.clientWidth;
+                    const index = Math.round(carousel.scrollLeft / slideWidth);
+                    if(index !== currentSlide && index >= 0 && index < slideCount) {
+                        currentSlide = index;
+                        dots.forEach((dot, i) => {
+                            if (i === index) {
+                                dot.classList.replace('w-1.5', 'w-6');
+                                dot.classList.replace('bg-white/50', 'bg-white');
+                            } else {
+                                dot.classList.replace('w-6', 'w-1.5');
+                                dot.classList.replace('bg-white', 'bg-white/50');
+                            }
+                        });
+                    }
+                });
+            }
         });
     </script>
 </body>
