@@ -84,24 +84,24 @@
         }
         @media (min-width: 768px) {
             .footer-acc-content {
-                max-height: none !important;
-                overflow: visible !important;
-            }
-        }
-        .footer-acc-inner, .nav-acc-inner {
-            opacity: 0;
-            transform: translateY(-8px);
-            transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1), transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .footer-acc-inner.is-open, .nav-acc-inner.is-open {
+        .nav-acc-inner.is-open {
             opacity: 1;
             transform: translateY(0);
         }
         @media (min-width: 768px) {
-            .footer-acc-inner {
+            .nav-acc-inner {
                 opacity: 1 !important;
                 transform: translateY(0) !important;
             }
+        }
+        
+        /* Progress Bar Animation for Carousel */
+        @keyframes progress-fill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .animate-progress {
+            animation: progress-fill 5s linear forwards;
         }
     </style>
 </head>
@@ -131,7 +131,7 @@
             <!-- Right Actions -->
             <div class="flex items-center gap-4 md:gap-6 flex-shrink-0">
                 <!-- Cart -->
-                <button id="cartBtn" class="relative p-2 text-beres-charcoal hover:text-beres-green transition-colors">
+                <button id="cartBtn" class="relative p-2 text-beres-green hover:text-beres-dark transition-colors">
                     <i class="ph ph-shopping-cart text-2xl"></i>
                     <!-- Dynamic Cart Badge -->
                     <span id="cartBadge" class="absolute top-1 right-1 w-4 h-4 bg-beres-orange text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white box-content hidden transition-transform transform">0</span>
@@ -154,7 +154,7 @@
                 </div>
 
                 <!-- Mobile & Tablet Hamburger (Hidden on Desktop) -->
-                <button id="hamburgerBtn" class="block lg:hidden p-2 text-beres-charcoal hover:text-beres-green transition-colors">
+                <button id="hamburgerBtn" class="block lg:hidden p-2 text-beres-green hover:text-beres-dark transition-colors">
                     <i class="ph ph-list text-2xl"></i>
                 </button>
             </div>
@@ -236,48 +236,54 @@
         <!-- NORMAL HOMEPAGE SECTIONS (Hidden when searching) -->
         <div id="homepage-sections">
             <!-- HERO BANNER -->
-            <section id="home" class="mt-4 md:mt-8 px-4 sm:px-6 lg:px-8 relative group">
-                <div id="heroCarousel" class="flex overflow-x-auto snap-x-mandatory hide-scrollbar rounded-2xl md:rounded-3xl relative">
-                    <!-- Slide 1 -->
-                    <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-beres-green overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
-                        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-                        <div class="relative z-10 px-6 md:px-16 w-full md:w-2/3">
-                            <span class="inline-block px-3 py-1 bg-white/20 text-white text-xs md:text-sm font-semibold rounded-full mb-3 md:mb-4 backdrop-blur-sm">#CariMudahJadiBeres</span>
-                            <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 md:mb-4">
-                                Cari Material Tanpa Keliling Toko.
-                            </h1>
-                            <p class="text-white/90 text-sm md:text-lg mb-4 md:mb-8 font-medium">
-                                Temukan toko terpercaya di sekitar lo. Tinggal klik, langsung diantar.
-                            </p>
-                            <button class="bg-beres-orange hover:bg-orange-500 text-white font-bold py-2.5 md:py-3.5 px-6 md:px-8 rounded-full text-sm md:text-base transition-colors shadow-lg transform active:scale-95 inline-flex items-center gap-2">
-                                Cari Material <i class="ph ph-arrow-right font-bold"></i>
-                            </button>
+            <section id="home" class="mt-4 md:mt-8 px-4 sm:px-6 lg:px-8 group">
+                <div class="relative">
+                    <div id="heroCarousel" class="flex overflow-x-auto snap-x-mandatory hide-scrollbar rounded-2xl md:rounded-3xl relative">
+                        <!-- Slide 1 -->
+                        <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-beres-green overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
+                            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+                            <div class="relative z-10 px-6 md:px-16 w-full md:w-2/3">
+                                <span class="inline-block px-3 py-1 bg-white/20 text-white text-xs md:text-sm font-semibold rounded-full mb-3 md:mb-4 backdrop-blur-sm">#CariMudahJadiBeres</span>
+                                <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-2 md:mb-4">
+                                    Cari Material Tanpa Keliling Toko.
+                                </h1>
+                                <p class="text-white/90 text-sm md:text-lg mb-4 md:mb-8 font-medium">
+                                    Temukan toko terpercaya di sekitar lo. Tinggal klik, langsung diantar.
+                                </p>
+                                <button class="bg-beres-orange hover:bg-orange-500 text-white font-bold py-2.5 md:py-3.5 px-6 md:px-8 rounded-full text-sm md:text-base transition-colors shadow-lg transform active:scale-95 inline-flex items-center gap-2">
+                                    Cari Material <i class="ph-bold ph-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="hidden md:block absolute right-0 bottom-0 h-[110%] w-1/3 bg-gradient-to-l from-black/20 to-transparent"></div>
                         </div>
-                        <div class="hidden md:block absolute right-0 bottom-0 h-[110%] w-1/3 bg-gradient-to-l from-black/20 to-transparent"></div>
-                    </div>
 
-                    <!-- Slide 2 -->
-                    <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-gray-900 overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
-                        <img src="https://placehold.co/1200x400/1C1C1E/FFFFFF?text=Material+Pilihan,+Langsung+Diantar" alt="Banner 2" class="absolute inset-0 w-full h-full object-cover opacity-60">
-                        <div class="relative z-10 px-6 md:px-16 w-full text-center">
-                            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-4">
-                                Material Pilihan,<br>Langsung Diantar.
-                            </h2>
-                            <button class="bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors shadow-lg">
-                                Belanja Sekarang
-                            </button>
+                        <!-- Slide 2 -->
+                        <div class="min-w-full snap-center relative aspect-[16/7] md:aspect-[21/6] bg-gray-900 overflow-hidden rounded-2xl md:rounded-3xl flex items-center">
+                            <img src="https://placehold.co/1200x400/1C1C1E/FFFFFF?text=Material+Pilihan,+Langsung+Diantar" alt="Banner 2" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                            <div class="relative z-10 px-6 md:px-16 w-full text-center">
+                                <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight mb-4">
+                                    Material Pilihan,<br>Langsung Diantar.
+                                </h2>
+                                <button class="bg-beres-green hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-colors shadow-lg">
+                                    Belanja Sekarang
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    
+                    <button id="prevSlide" class="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph-bold ph-caret-left text-xl"></i></button>
+                    <button id="nextSlide" class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph-bold ph-caret-right text-xl"></i></button>
                 </div>
 
-                <!-- Carousel Indicators -->
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                    <div class="w-6 h-1.5 rounded-full bg-white transition-all carousel-dot active"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 transition-all carousel-dot"></div>
+                <!-- Carousel Indicators (Progress Timer) -->
+                <div class="flex justify-center items-center gap-2 mt-3 md:mt-4" id="carouselIndicators">
+                    <button class="relative h-2 rounded-full bg-gray-200 overflow-hidden carousel-dot-btn transition-all duration-300 w-8 md:w-10 flex-shrink-0" aria-label="Slide 1">
+                        <div class="absolute top-0 left-0 h-full bg-beres-green w-0 carousel-progress"></div>
+                    </button>
+                    <button class="relative h-2 rounded-full bg-gray-200 overflow-hidden carousel-dot-btn transition-all duration-300 w-2 flex-shrink-0" aria-label="Slide 2">
+                        <div class="absolute top-0 left-0 h-full bg-beres-green w-0 carousel-progress"></div>
+                    </button>
                 </div>
-                
-                <button id="prevSlide" class="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph ph-caret-left text-xl font-bold"></i></button>
-                <button id="nextSlide" class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-beres-charcoal rounded-full items-center justify-center shadow-md backdrop-blur-sm transition-all z-20 opacity-0 group-hover:opacity-100"><i class="ph ph-caret-right text-xl font-bold"></i></button>
             </section>
 
             <!-- TRUST FEATURES -->
@@ -425,7 +431,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-[#031612] pt-6 md:pt-8 pb-24 md:pb-8 mt-auto">
+    <footer class="bg-[#031612] pt-8 md:pt-10 pb-24 md:pb-8 mt-auto">
         <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- TOP LOGO SECTION -->
@@ -569,7 +575,7 @@
     </footer>
 
     <!-- MOBILE BOTTOM NAVIGATION -->
-    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-beres-border pb-safe z-40 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white pb-safe z-40">
         <div class="flex justify-around items-center h-16">
             <a href="#home" class="flex flex-col items-center justify-center w-full h-full text-beres-green home-link">
                 <i class="ph-fill ph-house text-2xl mb-1"></i>
@@ -597,8 +603,8 @@
             <h2 class="text-lg font-bold text-beres-charcoal flex items-center gap-2">
                 <i class="ph ph-shopping-cart text-xl"></i> Keranjang (<span id="cartHeaderCount">0</span>)
             </h2>
-            <button id="closeCart" class="p-2 text-gray-400 hover:text-beres-charcoal hover:bg-gray-100 rounded-full transition-colors">
-                <i class="ph ph-x text-xl"></i>
+            <button id="closeCart" class="w-10 h-10 flex items-center justify-center flex-shrink-0 text-beres-charcoal hover:bg-gray-50 hover:text-beres-green rounded-full transition-colors -mr-2 group">
+                <i class="ph ph-x text-xl font-bold transition-transform duration-300 group-hover:rotate-90"></i>
             </button>
         </div>
 
@@ -619,8 +625,8 @@
     <div id="navDrawer" class="fixed top-0 right-0 w-full h-[100dvh] bg-white z-[60] transform translate-x-full flex flex-col shadow-2xl lg:hidden overflow-hidden" style="transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);">
         <div class="px-6 py-5 flex items-center justify-between border-b border-gray-100 flex-shrink-0 bg-white">
             <img src="https://i.imgur.com/kwr4b5C.png" alt="BERES Material" class="w-[100px] h-auto object-contain">
-            <button id="closeNav" class="p-2 text-beres-charcoal hover:bg-gray-50 hover:text-beres-green rounded-full transition-colors -mr-2">
-                <i class="ph ph-x text-xl font-bold"></i>
+            <button id="closeNav" class="w-10 h-10 flex items-center justify-center flex-shrink-0 text-beres-charcoal hover:bg-gray-50 hover:text-beres-green rounded-full transition-colors -mr-2 group">
+                <i class="ph ph-x text-xl font-bold transition-transform duration-300 group-hover:rotate-90"></i>
             </button>
         </div>
 
@@ -656,9 +662,9 @@
                 <a href="#pilihan-untuk-lo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PRODUK</a>
                 <a href="#promo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PROMO</a>
                 <a href="#pilihan-untuk-lo" class="w-full px-6 py-5 flex items-center justify-between text-left text-beres-charcoal font-bold text-[13px] uppercase tracking-wider border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click nav-item">PILIHAN UNTUK LO</a>
-                <a href="#" class="w-full px-6 py-5 flex flex-col text-left border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click" id="navProfileLink">
-                    <span class="text-beres-charcoal font-bold text-[13px] uppercase tracking-wider mb-1">PROFIL</span>
-                    <span id="navProfileDesc" class="text-beres-gray text-xs font-medium leading-relaxed">Masuk atau buat profil untuk pengalaman BERES yang lebih lengkap</span>
+                <a href="#" class="w-full px-6 py-5 flex items-center justify-between text-left border-b border-gray-100 hover:bg-gray-50 transition-colors close-on-click" id="navProfileLink">
+                    <span class="text-beres-charcoal font-bold text-[13px] uppercase tracking-wider">PROFIL</span>
+                    <i class="ph-bold ph-caret-right text-gray-400 text-sm"></i>
                 </a>
             </nav>
         </div>
@@ -1248,50 +1254,78 @@
             const carousel = document.getElementById('heroCarousel');
             const prevBtn = document.getElementById('prevSlide');
             const nextBtn = document.getElementById('nextSlide');
-            const dots = document.querySelectorAll('.carousel-dot');
+            const dotBtns = document.querySelectorAll('.carousel-dot-btn');
+            const progressBars = document.querySelectorAll('.carousel-progress');
             
             let currentSlide = 0;
             const slideCount = 2;
+            const slideDuration = 5000;
+            let autoplayTimeout;
 
-            function updateCarousel(index) {
+            function startProgress(index) {
+                currentSlide = index;
+                
+                // Update indicator shapes and trigger progress animation
+                dotBtns.forEach((btn, i) => {
+                    const bar = progressBars[i];
+                    
+                    if (i === index) {
+                        // ACTIVE: Shape into capsule
+                        btn.classList.remove('w-2');
+                        btn.classList.add('w-8', 'md:w-10');
+                        
+                        // Restart 0-100% green progress animation
+                        bar.classList.remove('animate-progress');
+                        void bar.offsetWidth; // Force reflow to guarantee animation restart
+                        bar.classList.add('animate-progress');
+                    } else {
+                        // INACTIVE: Shape into perfect circle/dot
+                        btn.classList.remove('w-8', 'md:w-10');
+                        btn.classList.add('w-2');
+                        
+                        // Reset progress
+                        bar.classList.remove('animate-progress');
+                        bar.style.width = '0%';
+                    }
+                });
+
+                clearTimeout(autoplayTimeout);
+                autoplayTimeout = setTimeout(() => {
+                    goToSlide((currentSlide + 1) % slideCount);
+                }, slideDuration);
+            }
+
+            function goToSlide(index) {
                 if(!carousel) return;
                 const slideWidth = carousel.clientWidth;
                 carousel.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
-
-                dots.forEach((dot, i) => {
-                    if (i === index) {
-                        dot.classList.replace('w-1.5', 'w-6');
-                        dot.classList.replace('bg-white/50', 'bg-white');
-                    } else {
-                        dot.classList.replace('w-6', 'w-1.5');
-                        dot.classList.replace('bg-white', 'bg-white/50');
-                    }
-                });
-                currentSlide = index;
+                startProgress(index);
             }
 
             if(nextBtn && prevBtn) {
-                nextBtn.addEventListener('click', () => updateCarousel((currentSlide + 1) % slideCount));
-                prevBtn.addEventListener('click', () => updateCarousel((currentSlide - 1 + slideCount) % slideCount));
+                nextBtn.addEventListener('click', () => goToSlide((currentSlide + 1) % slideCount));
+                prevBtn.addEventListener('click', () => goToSlide((currentSlide - 1 + slideCount) % slideCount));
             }
 
+            dotBtns.forEach((btn, i) => {
+                btn.addEventListener('click', () => goToSlide(i));
+            });
+
             if(carousel) {
+                let scrollTimeout;
                 carousel.addEventListener('scroll', () => {
-                    const slideWidth = carousel.clientWidth;
-                    const index = Math.round(carousel.scrollLeft / slideWidth);
-                    if(index !== currentSlide && index >= 0 && index < slideCount) {
-                        currentSlide = index;
-                        dots.forEach((dot, i) => {
-                            if (i === index) {
-                                dot.classList.replace('w-1.5', 'w-6');
-                                dot.classList.replace('bg-white/50', 'bg-white');
-                            } else {
-                                dot.classList.replace('w-6', 'w-1.5');
-                                dot.classList.replace('bg-white', 'bg-white/50');
-                            }
-                        });
-                    }
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        const slideWidth = carousel.clientWidth;
+                        const index = Math.round(carousel.scrollLeft / slideWidth);
+                        if(index !== currentSlide && index >= 0 && index < slideCount) {
+                            startProgress(index);
+                        }
+                    }, 50); // debounce scroll
                 });
+                
+                // Init first slide
+                setTimeout(() => startProgress(0), 100);
             }
         });
     </script>
