@@ -76,21 +76,37 @@
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        /* Animations */
+        /* Accordion Animations */
         .footer-acc-content, .nav-acc-content {
             max-height: 0px;
             overflow: hidden;
             transition: max-height 600ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         @media (min-width: 768px) {
-            .footer-acc-content {
-        .nav-acc-inner.is-open {
+            .footer-acc-content, .nav-acc-content {
+                display: block !important;
+                height: auto !important;
+                max-height: none !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                overflow: visible !important;
+            }
+        }
+        .footer-acc-inner, .nav-acc-inner {
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1), transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .footer-acc-inner.is-open, .nav-acc-inner.is-open {
             opacity: 1;
             transform: translateY(0);
         }
         @media (min-width: 768px) {
-            .nav-acc-inner {
+            .footer-acc-inner, .nav-acc-inner {
+                display: block !important;
+                height: auto !important;
                 opacity: 1 !important;
+                visibility: visible !important;
                 transform: translateY(0) !important;
             }
         }
@@ -578,7 +594,7 @@
     <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white pb-safe z-40">
         <div class="flex justify-around items-center h-16">
             <a href="#home" class="flex flex-col items-center justify-center w-full h-full text-beres-green home-link">
-                <i class="ph-fill ph-house text-2xl mb-1"></i>
+                <img src="assets/img/home-icon.png" alt="Home" class="w-[26px] h-[26px] object-contain mb-1">
                 <span class="text-[10px] font-bold">Home</span>
             </a>
             <a href="#pilihan-untuk-lo" class="flex flex-col items-center justify-center w-full h-full text-beres-gray hover:text-beres-green transition-colors">
